@@ -17,7 +17,71 @@
    inkscape:version="0.48.4 r9939"
    sodipodi:docname="abspann.svg">
   <defs
-     id="defs20" />
+     id="defs20">
+    <filter
+       id="filter3772"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow">
+      <feFlood
+         id="feFlood3774"
+         flood-opacity="0.5"
+         flood-color="rgb(255,255,255)"
+         result="flood" />
+      <feComposite
+         id="feComposite3776"
+         in2="SourceGraphic"
+         in="flood"
+         operator="in"
+         result="composite1" />
+      <feGaussianBlur
+         id="feGaussianBlur3778"
+         in="composite"
+         stdDeviation="3"
+         result="blur" />
+      <feOffset
+         id="feOffset3780"
+         dx="1"
+         dy="1"
+         result="offset" />
+      <feComposite
+         id="feComposite3782"
+         in2="offset"
+         in="SourceGraphic"
+         operator="over"
+         result="composite2" />
+    </filter>
+    <filter
+       color-interpolation-filters="sRGB"
+       id="filter3772-5"
+       inkscape:label="Drop Shadow">
+      <feFlood
+         id="feFlood3774-9"
+         flood-opacity="0.5"
+         flood-color="rgb(255,255,255)"
+         result="flood" />
+      <feComposite
+         id="feComposite3776-9"
+         in2="SourceGraphic"
+         in="flood"
+         operator="in"
+         result="composite1" />
+      <feGaussianBlur
+         id="feGaussianBlur3778-3"
+         stdDeviation="3"
+         result="blur" />
+      <feOffset
+         id="feOffset3780-4"
+         dx="1"
+         dy="1"
+         result="offset" />
+      <feComposite
+         id="feComposite3782-9"
+         in2="offset"
+         in="SourceGraphic"
+         operator="over"
+         result="composite2" />
+    </filter>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -25,9 +89,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7"
-     inkscape:cx="-131.44708"
-     inkscape:cy="221.20695"
+     inkscape:zoom="1.4"
+     inkscape:cx="231.95926"
+     inkscape:cy="193.94387"
      inkscape:document-units="px"
      inkscape:current-layer="layer_background"
      showgrid="false"
@@ -84,19 +148,21 @@
        id="g_background"
        transform="translate(3.2142857,-29.821429)">
       <image
-         width="1024"
-         height="768"
-         xlink:href="file:///home/peter/fossgis2014/video/vor-abspann/artwork/foto-soft.jpg"
-         id="image_background"
+         sodipodi:absref="/home/peter/fossgis-video/2014/vor-abspann/artwork/foto-soft.jpg"
+         xlink:href="foto-soft.jpg"
+         y="313.82144"
          x="-3.2142856"
-         y="313.82144" />
+         id="image_background"
+         height="768"
+         width="1024" />
       <image
-         width="166"
-         height="166"
-         xlink:href="file:///home/peter/fossgis2014/video/vor-abspann/artwork/logo.png"
-         id="image_logo"
+         sodipodi:absref="/home/peter/fossgis-video/2014/vor-abspann/artwork/logo.png"
+         xlink:href="logo.png"
+         y="537.82141"
          x="28.785715"
-         y="537.82141" />
+         id="image_logo"
+         height="166"
+         width="166" />
     </g>
     <rect
        style="fill:#ffffff;fill-opacity:0.50196078"
@@ -108,40 +174,57 @@
        id="rect_banderole" />
     <text
        xml:space="preserve"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="95.964493"
-       y="360.83752"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:80.00000119%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter3772);font-family:Sans"
+       x="75.964493"
+       y="836.83752"
        id="text2992"
-       sodipodi:linespacing="80%"
-       transform="translate(0,476)"><tspan
+       sodipodi:linespacing="80.000001%"><tspan
          sodipodi:role="line"
          id="tspan2994"
-         x="95.964493"
-         y="360.83752"
-         style="fill:#f2f4f5;fill-opacity:1;-inkscape-font-specification:Droid Sans Bold;font-family:Droid Sans;font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal;font-size:48px;line-height:80%">FOSSGIS Konferenz</tspan><tspan
+         x="75.964493"
+         y="836.83752"
+         style="font-size:48px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:80.00000119%;fill:#f2f4f5;fill-opacity:1;font-family:Droid Sans;-inkscape-font-specification:Droid Sans Bold" /><tspan
          sodipodi:role="line"
-         x="95.964493"
-         y="410.83752"
+         x="75.964493"
+         y="875.23755"
          id="tspan2996"
-         style="-inkscape-font-specification:Droid Sans Bold;font-family:Droid Sans;font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal;font-size:48px;line-height:80%"><tspan
-           style="fill:#f2f4f5;fill-opacity:1;-inkscape-font-specification:Droid Sans Bold;font-family:Droid Sans;font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal;font-size:48px;line-height:80%"
-           id="tspan3772">2014</tspan><tspan
-           style="fill:#7b9199;fill-opacity:1;-inkscape-font-specification:Droid Sans Bold;font-family:Droid Sans;font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal;font-size:48px;line-height:80%"
-           id="tspan3774"> Berlin</tspan></tspan><tspan
+         style="font-size:48px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:80.00000119%;fill:#7b9199;fill-opacity:1;stroke:none;font-family:Droid Sans;-inkscape-font-specification:Droid Sans Bold">         Berlin</tspan><tspan
          sodipodi:role="line"
-         x="95.964493"
-         y="460.83752"
-         id="tspan2998"
-         style="fill:#7b9199;fill-opacity:1;-inkscape-font-specification:Droid Sans Bold;font-family:Droid Sans;font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal;font-size:48px;line-height:80%">19. - 21. März 2014</tspan><tspan
-         sodipodi:role="line"
-         x="95.964493"
-         y="510.83752"
-         id="tspan3000"
-         style="-inkscape-font-specification:Droid Sans Bold;font-family:Droid Sans;font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal;font-size:48px;line-height:80%" /><tspan
-         sodipodi:role="line"
-         x="95.964493"
-         y="560.83752"
+         x="75.964493"
+         y="913.63751"
          id="tspan3002"
-         style="-inkscape-font-specification:Droid Sans Bold;font-family:Droid Sans;font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal;font-size:48px;line-height:80%">fossgis.de/konferenz/2014/</tspan></text>
+         style="font-size:48px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:80.00000119%;fill:#7b9199;fill-opacity:1;stroke:none;font-family:Droid Sans;-inkscape-font-specification:Droid Sans Bold">19. - 21. März 2014</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:80.00000119%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="77.218193"
+       y="837.2262"
+       id="text2992-5"
+       sodipodi:linespacing="80.000001%"><tspan
+         sodipodi:role="line"
+         id="tspan2994-9"
+         x="77.218193"
+         y="837.2262"
+         style="font-size:48px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:80.00000119%;fill:#f2f4f5;fill-opacity:1;font-family:Droid Sans;-inkscape-font-specification:Droid Sans Bold">FOSSGIS Konferenz</tspan><tspan
+         sodipodi:role="line"
+         x="77.218193"
+         y="875.62622"
+         id="tspan2998-1"
+         style="font-size:48px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:80.00000119%;fill:#f2f4f5;fill-opacity:1;stroke:none;font-family:Droid Sans;-inkscape-font-specification:Droid Sans Bold">2014</tspan><tspan
+         sodipodi:role="line"
+         x="77.218193"
+         y="914.02618"
+         style="font-size:48px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:80.00000119%;fill:#f2f4f5;fill-opacity:1;stroke:none;font-family:Droid Sans;-inkscape-font-specification:Droid Sans Bold"
+         id="tspan3841" /><tspan
+         sodipodi:role="line"
+         x="77.218193"
+         y="952.42621"
+         id="tspan3000-8"
+         style="font-size:48px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:80.00000119%;font-family:Droid Sans;-inkscape-font-specification:Droid Sans Bold" /><tspan
+         sodipodi:role="line"
+         x="77.218193"
+         y="990.82617"
+         id="tspan3002-3"
+         style="font-size:20px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:80.00000119000000609%;font-family:Droid Sans;-inkscape-font-specification:Droid Sans Bold;fill:#f2f4f5;fill-opacity:1">fossgis.de/konferenz/2014/</tspan></text>
   </g>
 </svg>
