@@ -140,7 +140,7 @@ def vorspann(id, title, personnames):
 
 	# svg does not have a method for automatic line breaking, that rsvg is capable of
 	# so we do it in python as good as we can
-	breaktitle = '</tspan><tspan x="150" dy="40">'.join(textwrap.wrap(title, 35))
+	breaktitle = '</tspan><tspan x="150" dy="45">'.join(textwrap.wrap(title, 35))
 
 	for (frameNr, opacityBox, opacity1, opacity2) in vorspannFrames():
 		print "frameNr {0:2d} => opacityBox {1:0.2f}, opacity1 {2:0.2f}, opacity2 {3:0.2f}".format(frameNr, opacityBox, opacity1, opacity2)
