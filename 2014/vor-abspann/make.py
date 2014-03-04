@@ -9,6 +9,7 @@ import errno
 import unicodedata
 import urllib2
 import xml.etree.ElementTree as ET
+import textwrap
 
 fps = 25
 
@@ -67,10 +68,10 @@ def vorspannFrames():
 		yield (frame+i, easeOutCubic(i, 0, 1, frames), easeOutCubic(i, 0, 1, frames), 0)
 
 	# 1 Sekunde Fadeout Text 1
-	frame = 0
+	frame = frame+i+1
 	frames = 1*fps
 	for i in range(0, frames):
-		yield (frame+i, 1, (1-i)/frames, 0)
+		yield (frame+i, 1, 1-(float(i)/frames), 0)
 
 	# 2 Sekunden Text 2
 	frame = frame+i+1
@@ -114,7 +115,7 @@ def abspann():
 
 def vorspann(id, title, personnames):
 	print u'erzeuge Vorspann für {0:4d} ("{1}")'.format(id, title)
-	filename = u'{0:04d}-{1}.mp4'.format(id, unicode(title) )
+	filename = u'{0:04d}-{1}.mp4'.format(id, slugify(unicode(title)) )
 
 	ensure_files_removed(filename)
 
@@ -124,6 +125,10 @@ def vorspann(id, title, personnames):
 	with open('vorspann.svg', 'r') as vorspann_file:
 		vorspann = vorspann_file.read()
 
+	# svg does not have a method for automatic line breaking, that rsvg is capable of
+	# so we do it in python as good as we can
+	breaktitle = '</tspan><tspan x="150" dy="40">'.join(textwrap.wrap(title, 35))
+
 	for (frameNr, opacityBox, opacity1, opacity2) in vorspannFrames():
 		print "frameNr {0:2d} => opacityBox {1:0.2f}, opacity1 {2:0.2f}, opacity2 {3:0.2f}".format(frameNr, opacityBox, opacity1, opacity2)
 
@@ -132,16 +137,16 @@ def vorspann(id, title, personnames):
 			('%opacity2', str(opacity2)), \
 			('%opacityBox', str(opacityBox)), \
 			('%id', str(id)), \
-			('%title', title), \
+			('%title', breaktitle), \
 			('%personnames', personnames)
 
 		with open('.gen.svg', 'w') as gen_file:
 			gen_vorspann = reduce(lambda a, kv: a.replace(*kv), pairs, vorspann)
 			gen_file.write( gen_vorspann )
 
-		#os.system('rsvg-convert .gen.svg > .frames/{0:04d}.png'.format(frameNr))
+		os.system('rsvg-convert .gen.svg > .frames/{0:04d}.png'.format(frameNr))
 
-	os.system(u'avconv -f image2 -i .frames/%04d.png -c:v libx264 -preset veryslow -qp 0 ../'+filename)
+	os.system(u'avconv -f image2 -i .frames/%04d.png -c:v libx264 -preset veryslow -qp 0 "../'+filename+'"')
 
 	print "aufräumen"
 	ensure_files_removed('.frames/*.png')
@@ -151,11 +156,11 @@ def vorspann(id, title, personnames):
 
 
 def events():
-	#print "downloading pentabarf program"
-	#response = urllib2.urlopen('http://www.fossgis.de/konferenz/2014/programm/schedule.de.xml')
-	#xml = response.read()
-	#schedule = ET.fromstring(xml)
-	schedule = ET.parse('schedule.de.xml')
+	print "downloading pentabarf program"
+	response = urllib2.urlopen('http://www.fossgis.de/konferenz/2014/programm/schedule.de.xml')
+	xml = response.read()
+	schedule = ET.fromstring(xml)
+	#schedule = ET.parse('schedule.de.xml')
 
 	for day in schedule.iter('day'):
 		date = day.get('date')
@@ -167,9 +172,7 @@ def events():
 
 				yield ( int(event.get('id')), event.find('title').text, ', '.join(personnames) )
 
-
 for (id, title, personnames) in events():
 	vorspann(id, title, personnames)
-	break
 
-#abspann()
+abspann()
