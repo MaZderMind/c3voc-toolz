@@ -46,17 +46,25 @@ def slugify(value):
 
 
 def abspannFrames():
-	# 3 Sekunden, 2 Sekunden Fade-In, 1 Sekunde stehen bleiben
+	# 5 Sekunden
+
+	# 2 Sekunden Fadein Text
 	frame = 0
 	frames = 2*fps
 	for i in range(0, frames):
-		yield (frame+i, easeOutCubic(i, 0, 1, frames))
+		yield (frame+i, easeOutCubic(i, 0, 1, frames), 0)
 
+	# 2 Sekunde Fadein Lizenz-Logo
+	frame = frame+i+1
+	frames = 2*fps
+	for i in range(0, frames):
+		yield (frame+i, 1, float(i)/frames)
+
+	# 1 Sekunde stehen bleiben
 	frame = frame+i+1
 	frames = 1*fps
 	for i in range(0, frames):
-		yield (frame+i, 1)
-
+		yield (frame+i, 1, 1)
 
 def vorspannFrames():
 	# 7 Sekunden
@@ -87,9 +95,9 @@ def vorspannFrames():
 
 
 
-def abspann():
+def abspann(lizenz):
 	print "erzeuge Abspann"
-	ensure_files_removed('abspann.mp4')
+	filename = '../abspann-{0}.mp4'.format(lizenz)
 
 	os.chdir('artwork')
 	ensure_path_exists('.frames')
@@ -97,15 +105,22 @@ def abspann():
 	with open('abspann.svg', 'r') as abspann_file:
 		abspann = abspann_file.read()
 
-	for (frameNr, opacity) in abspannFrames():
-		print "frameNr {0:2d} => opacity {1:0.2f}".format(frameNr, opacity)
+	for (frameNr, opacity, opacityLizenz) in abspannFrames():
+		print "frameNr {0:2d} => opacity {1:0.2f}, opacityLizenz {2:0.2f}".format(frameNr, opacity, opacityLizenz)
+
+		pairs = \
+			('%opacityLizenz', str(opacityLizenz)), \
+			('%opacity', str(opacity)), \
+			('%lizenz', lizenz)
 
 		with open('.gen.svg', 'w') as gen_file:
-			gen_file.write( abspann.replace('%opacity', str(opacity)) )
+			gen_abspann = reduce(lambda a, kv: a.replace(*kv), pairs, abspann)
+			gen_file.write( gen_abspann )
 
 		os.system('rsvg-convert .gen.svg > .frames/{0:04d}.png'.format(frameNr))
 
-	os.system('avconv -f image2 -i .frames/%04d.png -c:v libx264 -preset veryslow -qp 0 ../abspann.mp4')
+	ensure_files_removed(filename)
+	os.system('avconv -f image2 -i .frames/%04d.png -c:v libx264 -preset veryslow -qp 0 "'+filename+'"')
 
 	print "aufräumen"
 	ensure_files_removed('.frames/*.png')
@@ -115,9 +130,7 @@ def abspann():
 
 def vorspann(id, title, personnames):
 	print u'erzeuge Vorspann für {0:4d} ("{1}")'.format(id, title)
-	filename = u'{0:04d}-{1}.mp4'.format(id, slugify(unicode(title)) )
-
-	ensure_files_removed(filename)
+	filename = u'../{0:04d}-{1}.mp4'.format(id, slugify(unicode(title)) )
 
 	os.chdir('artwork')
 	ensure_path_exists('.frames')
@@ -146,7 +159,8 @@ def vorspann(id, title, personnames):
 
 		os.system('rsvg-convert .gen.svg > .frames/{0:04d}.png'.format(frameNr))
 
-	os.system(u'avconv -f image2 -i .frames/%04d.png -c:v libx264 -preset veryslow -qp 0 "../'+filename+'"')
+	ensure_files_removed(filename)
+	os.system(u'avconv -f image2 -i .frames/%04d.png -c:v libx264 -preset veryslow -qp 0 "'+filename+'"')
 
 	print "aufräumen"
 	ensure_files_removed('.frames/*.png')
@@ -172,7 +186,12 @@ def events():
 
 				yield ( int(event.get('id')), event.find('title').text, ', '.join(personnames) )
 
-for (id, title, personnames) in events():
-	vorspann(id, title, personnames)
+#for (id, title, personnames) in events():
+#	vorspann(id, title, personnames)
 
-abspann()
+#vorspann(667, 'OpenJUMP - Überblick, Neuigkeiten, Zusammenarbeit/Schnittstellen mit proprietärer Software', 'Matthias Scholz')
+#vorspann(754, 'Eröffnung', '')
+#vorspann(760, 'Was ist Open Source, wie funktioniert das und worauf muss man achten', 'Arnulf Christl, Athina Trakas')
+abspann('by-sa')
+abspann('by-nc-sa')
+abspann('cc-zero')
