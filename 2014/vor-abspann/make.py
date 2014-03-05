@@ -5,13 +5,21 @@ import sys
 import glob
 import os
 import re
+import shutil
 import errno
 import unicodedata
 import urllib2
 import xml.etree.ElementTree as ET
 import textwrap
+import tempfile
+import threading
+import multiprocessing
+from threading import Thread, Lock
+from Queue import Queue
 
+# Debug rendert einen Vor- und einen Abspann
 fps = 25
+debug = ('--debug' in sys.argv)
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -95,47 +103,49 @@ def vorspannFrames():
 
 
 
-def abspann(lizenz):
-	print "erzeuge Abspann"
-	filename = '../abspann-{0}.mp4'.format(lizenz)
+def abspann(lizenz, workdir='artwork', outdir='..'):
+	if debug:
+		print "erzeuge Abspann"
 
-	os.chdir('artwork')
-	ensure_path_exists('.frames')
+	filename = os.path.join(outdir, 'abspann-{0}.mp4'.format(lizenz))
 
-	with open('abspann.svg', 'r') as abspann_file:
+	ensure_path_exists(os.path.join(workdir, '.frames'))
+
+	with open(os.path.join(workdir, 'abspann.svg'), 'r') as abspann_file:
 		abspann = abspann_file.read()
 
 	for (frameNr, opacity, opacityLizenz) in abspannFrames():
-		print "frameNr {0:2d} => opacity {1:0.2f}, opacityLizenz {2:0.2f}".format(frameNr, opacity, opacityLizenz)
+		if debug:
+			print "frameNr {0:2d} => opacity {1:0.2f}, opacityLizenz {2:0.2f}".format(frameNr, opacity, opacityLizenz)
 
 		pairs = \
 			('%opacityLizenz', str(opacityLizenz)), \
 			('%opacity', str(opacity)), \
 			('%lizenz', lizenz)
 
-		with open('.gen.svg', 'w') as gen_file:
+		with open(os.path.join(workdir, '.gen.svg'), 'w') as gen_file:
 			gen_abspann = reduce(lambda a, kv: a.replace(*kv), pairs, abspann)
 			gen_file.write( gen_abspann )
 
-		os.system('rsvg-convert .gen.svg > .frames/{0:04d}.png'.format(frameNr))
+		os.system('cd {0} && rsvg-convert .gen.svg > .frames/{1:04d}.png'.format(workdir, frameNr))
 
 	ensure_files_removed(filename)
-	os.system('avconv -f image2 -i .frames/%04d.png -c:v libx264 -preset veryslow -qp 0 "'+filename+'"')
+	os.system('cd {0} && avconv -f image2 -i .frames/%04d.png -c:v libx264 -preset veryslow -qp 0 "{1}"'.format(workdir, filename))
 
-	print "aufräumen"
-	ensure_files_removed('.frames/*.png')
-	os.rmdir('.frames')
-	ensure_files_removed('.gen.svg')
-	os.chdir('..')
+	if debug:
+		print "aufräumen"
+	shutil.rmtree(os.path.join(workdir, '.frames'))
+	ensure_files_removed(os.path.join(workdir, '.gen.svg'))
 
-def vorspann(id, title, personnames):
-	print u'erzeuge Vorspann für {0:4d} ("{1}")'.format(id, title)
-	filename = u'../{0:04d}-{1}.mp4'.format(id, slugify(unicode(title)) )
+def vorspann(id, title, personnames, workdir='artwork', outdir='..'):
+	if debug:
+		print u'erzeuge Vorspann für {0:4d} ("{1}")'.format(id, title)
 
-	os.chdir('artwork')
-	ensure_path_exists('.frames')
+	filename = os.path.join( outdir, u'{0:04d}-{1}.mp4'.format(id, slugify(unicode(title))) )
 
-	with open('vorspann.svg', 'r') as vorspann_file:
+	ensure_path_exists(os.path.join(workdir, '.frames'))
+
+	with open(os.path.join(workdir, 'vorspann.svg'), 'r') as vorspann_file:
 		vorspann = vorspann_file.read()
 
 	# svg does not have a method for automatic line breaking, that rsvg is capable of
@@ -143,7 +153,8 @@ def vorspann(id, title, personnames):
 	breaktitle = '</tspan><tspan x="150" dy="45">'.join(textwrap.wrap(title, 35))
 
 	for (frameNr, opacityBox, opacity1, opacity2) in vorspannFrames():
-		print "frameNr {0:2d} => opacityBox {1:0.2f}, opacity1 {2:0.2f}, opacity2 {3:0.2f}".format(frameNr, opacityBox, opacity1, opacity2)
+		if debug:
+			print "frameNr {0:2d} => opacityBox {1:0.2f}, opacity1 {2:0.2f}, opacity2 {3:0.2f}".format(frameNr, opacityBox, opacity1, opacity2)
 
 		pairs = \
 			('%opacity1', str(opacity1)), \
@@ -153,28 +164,27 @@ def vorspann(id, title, personnames):
 			('%title', breaktitle), \
 			('%personnames', personnames)
 
-		with open('.gen.svg', 'w') as gen_file:
+		with open(os.path.join(workdir, '.gen.svg'), 'w') as gen_file:
 			gen_vorspann = reduce(lambda a, kv: a.replace(*kv), pairs, vorspann)
 			gen_file.write( gen_vorspann )
 
-		os.system('rsvg-convert .gen.svg > .frames/{0:04d}.png'.format(frameNr))
+		os.system('cd {0} && rsvg-convert .gen.svg > .frames/{1:04d}.png'.format(workdir, frameNr))
 
 	ensure_files_removed(filename)
-	os.system(u'avconv -f image2 -i .frames/%04d.png -c:v libx264 -preset veryslow -qp 0 "'+filename+'"')
+	os.system(u'cd {0} && avconv -f image2 -i .frames/%04d.png -c:v libx264 -preset veryslow -qp 0 "{1}"'.format(workdir, filename) + ('' if debug else '>/dev/null 2>&1'))
 
-	print "aufräumen"
-	ensure_files_removed('.frames/*.png')
-	os.rmdir('.frames')
-	ensure_files_removed('.gen.svg')
-	os.chdir('..')
+	if debug:
+		print "aufräumen"
+	shutil.rmtree(os.path.join(workdir, '.frames'))
+	ensure_files_removed(os.path.join(workdir, '.gen.svg'))
 
 
 def events():
-	print "downloading pentabarf program"
-	response = urllib2.urlopen('http://www.fossgis.de/konferenz/2014/programm/schedule.de.xml')
-	xml = response.read()
-	schedule = ET.fromstring(xml)
-	#schedule = ET.parse('schedule.de.xml')
+	print "downloading pentabarf schedule"
+	#response = urllib2.urlopen('http://www.fossgis.de/konferenz/2014/programm/schedule.de.xml')
+	#xml = response.read()
+	#schedule = ET.fromstring(xml)
+	schedule = ET.parse('schedule.de.xml')
 
 	for day in schedule.iter('day'):
 		date = day.get('date')
@@ -186,12 +196,72 @@ def events():
 
 				yield ( int(event.get('id')), event.find('title').text, ', '.join(personnames) )
 
-#for (id, title, personnames) in events():
-#	vorspann(id, title, personnames)
 
-#vorspann(667, 'OpenJUMP - Überblick, Neuigkeiten, Zusammenarbeit/Schnittstellen mit proprietärer Software', 'Matthias Scholz')
-#vorspann(754, 'Eröffnung', '')
-#vorspann(760, 'Was ist Open Source, wie funktioniert das und worauf muss man achten', 'Arnulf Christl, Athina Trakas')
-abspann('by-sa')
-abspann('by-nc-sa')
-abspann('cc-zero')
+
+if debug:
+	print "!!! DEBUG MODE !!!"
+	vorspann(667, 'OpenJUMP - Überblick, Neuigkeiten, Zusammenarbeit/Schnittstellen mit proprietärer Software', 'Matthias Scholz')
+	abspann('by-sa')
+	sys.exit(0)
+
+
+
+
+tasks = Queue()
+
+for (id, title, personnames) in events():
+	tasks.put( ('vorspann', id, title, personnames) )
+
+tasks.put( ('abspann', 'by-sa') )
+tasks.put( ('abspann', 'by-nc-sa') )
+tasks.put( ('abspann', 'cc-zero') )
+
+num_worker_threads = multiprocessing.cpu_count()
+print "{0} tasks in queue, starting {1} worker threads".format( tasks.qsize(), num_worker_threads )
+
+for _ in range(num_worker_threads):
+	tasks.put(None) # put sentinel to signal the end
+
+
+printLock = Lock() 
+def tprint(str):
+	printLock.acquire()
+	print threading.current_thread().name+': '+str
+	printLock.release()
+
+
+
+def worker():
+	tempdir = os.path.join(tempfile.mkdtemp(), 'artwork')
+	outdir = os.getcwd()
+
+	tprint("initializing worker in {0}, writing result to {1}".format(tempdir, outdir))
+	shutil.copytree('artwork', tempdir)
+
+	while True:
+		task = tasks.get()
+		if task == None:
+			break
+
+		tprint( 'processing {0}'.format(task) )
+		fnname = task[0]
+		fn = globals()[fnname]
+		opts = task[1:] + (tempdir, outdir)
+
+		fn(*opts)
+		tprint( 'finished {0}'.format(task) )
+		tasks.task_done()
+
+	tprint("cleaning up worker")
+	shutil.rmtree(tempdir)
+	tasks.task_done()
+
+
+
+for i in range(num_worker_threads):
+	t = Thread(target=worker)
+	t.daemon = True
+	t.start()
+
+tasks.join()
+print "all worker threads ended"
