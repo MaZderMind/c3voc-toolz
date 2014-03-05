@@ -181,10 +181,10 @@ def vorspann(id, title, personnames, workdir='artwork', outdir='..'):
 
 def events():
 	print "downloading pentabarf schedule"
-	#response = urllib2.urlopen('http://www.fossgis.de/konferenz/2014/programm/schedule.de.xml')
-	#xml = response.read()
-	#schedule = ET.fromstring(xml)
-	schedule = ET.parse('schedule.de.xml')
+	response = urllib2.urlopen('http://www.fossgis.de/konferenz/2014/programm/schedule.de.xml')
+	xml = response.read()
+	schedule = ET.fromstring(xml)
+	#schedule = ET.parse('schedule.de.xml')
 
 	for day in schedule.iter('day'):
 		date = day.get('date')
