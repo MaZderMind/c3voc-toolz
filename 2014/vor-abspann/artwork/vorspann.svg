@@ -179,16 +179,14 @@
        id="g_background"
        transform="translate(3.2142857,-29.821429)">
       <image
-         sodipodi:absref="/home/peter/fossgis-video/2014/vor-abspann/artwork/foto-soft.jpg"
-         xlink:href="foto-soft.jpg"
+         xlink:href="file:///%workdir/foto-soft.jpg"
          width="1024"
          height="768"
          id="image_background"
          x="-3.2142856"
          y="313.82144" />
       <image
-         sodipodi:absref="/home/peter/fossgis-video/2014/vor-abspann/artwork/logo.png"
-         xlink:href="logo_ohne_rand-332.png"
+         xlink:href="file:///%workdir/logo_ohne_rand-332.png"
          width="166"
          height="166"
          id="image_logo"

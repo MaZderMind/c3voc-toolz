@@ -121,7 +121,8 @@ def abspann(lizenz, workdir='artwork', outdir='..'):
 		pairs = \
 			('%opacityLizenz', str(opacityLizenz)), \
 			('%opacity', str(opacity)), \
-			('%lizenz', lizenz)
+			('%lizenz', lizenz), \
+			('%workdir', os.path.realpath(workdir) )
 
 		with open(os.path.join(workdir, '.gen.svg'), 'w') as gen_file:
 			gen_abspann = reduce(lambda a, kv: a.replace(*kv), pairs, abspann)
@@ -162,7 +163,8 @@ def vorspann(id, title, personnames, workdir='artwork', outdir='..'):
 			('%opacityBox', str(opacityBox)), \
 			('%id', str(id)), \
 			('%title', breaktitle), \
-			('%personnames', personnames)
+			('%personnames', personnames), \
+			('%workdir', os.path.realpath(workdir) )
 
 		with open(os.path.join(workdir, '.gen.svg'), 'w') as gen_file:
 			gen_vorspann = reduce(lambda a, kv: a.replace(*kv), pairs, vorspann)
