@@ -1,0 +1,9 @@
+source 'https://rubygems.org'
+
+gem 'rack'
+gem 'mime-types'
+gem 'nanoc'
+gem 'haml'
+gem 'sass'
+gem 'nokogiri'
+gem 'compass'

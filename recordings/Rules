@@ -1,0 +1,96 @@
+#!/usr/bin/env ruby
+
+# A few helpful tips about the Rules file:
+#
+# * The string given to #compile and #route are matching patterns for
+#   identifiers--not for paths. Therefore, you can’t match on extension.
+#
+# * The order of rules is important: for each item, only the first matching
+#   rule is applied.
+#
+# * Item identifiers start and end with a slash (e.g. “/about/” for the file
+#   “content/about.html”). To select all children, grandchildren, … of an
+#   item, use the pattern “/about/*/”; “/about/*” will also select the parent,
+#   because “*” matches zero or more characters.
+
+require 'compass'
+Compass.add_project_configuration 'lib/compass.rb'
+
+compile '/css/' do
+  # don’t filter or layout
+end
+
+compile '/img/*/' do
+  # Don't waste time compiling partials that will never be output
+  nil
+end
+
+compile '/js/*/' do
+  # Don't waste time compiling partials that will never be output
+  nil
+end
+
+preprocess do
+  read_schedule().each do |year|
+    items << Nanoc::Item.new(
+      "=render '_year'",
+      { :year => year },
+      "/year/#{year}/")
+  end
+end
+
+compile '/year/*/' do
+  filter :haml, { :ugly => true, autoclose: ['<source>'], format: :xhtml }
+  layout 'default'
+  filter :relativize_paths, :type => :html
+end
+
+compile '*' do
+  unless item.binary?
+    case item[:extension]
+      when 'css'
+        filter :relativize_paths, :type => :css
+      when 'scss'
+        filter :sass, Compass.sass_engine_options
+        filter :relativize_paths, :type => :css
+      when 'haml'
+        filter :haml, { :ugly => true, autoclose: ['<source>'], format: :xhtml }
+        layout 'default'
+        filter :relativize_paths, :type => :html
+      when 'js'
+        nil
+      else
+        nil
+    end
+  end
+end
+
+
+route '/css/*/' do
+  if item.identifier.start_with?('/css/_')
+    item.identifier.chop + '.' + item[:extension]
+  else
+    item.identifier.gsub(/\/$/, '') + '.css'
+  end
+end
+
+
+route '/img/*/' do
+  item.identifier.chop + '.' + item[:extension]
+end
+
+route '/js/*/' do
+  item.identifier.chop + '.' + item[:extension]
+end
+
+route '*' do
+  if item.binary?
+    # Write item with identifier /foo/ to /foo.ext
+    item.identifier.chop + '.' + item[:extension]
+  else
+    # Write item with identifier /foo/ to /foo/index.html
+    item.identifier + 'index.html'
+  end
+end
+
+layout '*', :haml, {:ugly => true, :autoclose => ['<source>', '<audio>', '<video>'], format: :xhtml}

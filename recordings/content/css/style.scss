@@ -1,0 +1,8 @@
+@import "compass";
+
+$cbrand: red;
+
+body {
+	background: $cbrand;
+	@include border-radius(5px);
+}

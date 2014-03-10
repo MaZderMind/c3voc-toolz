@@ -1,0 +1,8 @@
+tmp
+*.log
+.idea
+.sass-cache
+*.scssc
+mingraymono_regular*
+ramsey*
+output
