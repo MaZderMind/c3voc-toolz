@@ -1,7 +1,7 @@
 %h2
-	Test
+	Eventliste
 
-- Schedule.events().each do |eventname, event|
+- Schedule.events().each do |event|
 	%h3
-		%a{ href: "/event/#{eventname.slugify}/"}
-			Event #{eventname}
+		%a{ href: "/event/#{event[:title].slugify}/"}
+			Event #{event[:title]}

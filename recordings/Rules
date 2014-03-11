@@ -31,18 +31,18 @@ compile '/js/*/' do
 end
 
 preprocess do
-  Schedule.events().each do |eventname, event|
+  Schedule.events().each do |event|
     items << Nanoc::Item.new(
       "=render '_event'",
-      { :eventname => eventname, :event => event },
-      "/event/#{eventname.slugify}/")
+      event,
+      "/event/#{event[:title].slugify}/")
   end
 
-  Schedule.talks().each do |talkid, talk|
+  Schedule.talks().each do |talk|
     items << Nanoc::Item.new(
       "=render '_talk'",
-      { :talkid => talkid, :talk => talk },
-      "/talk/#{talkid}/")
+      talk,
+      "/talk/#{talk[:id]}/")
   end
 end
 

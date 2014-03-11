@@ -1,5 +1,6 @@
 require 'open-uri'
 require 'nokogiri'
+require 'colored'
 
 class String
 	def slugify()
@@ -8,13 +9,13 @@ class String
 end
 
 class Schedule
-	@@events = {
-		'FOSSGIS 2010' => {
+	@@events = [
+		{
 			:schedule => 'http://www.fossgis.de/konferenz/2010/schedule.de.xml',
 			# no videos, only attachments
 		},
 
-		'FOSSGIS 2011' => {
+		{
 			# the pentabarf-xml is taken to build a person-, event- and talk-index
 			# attachments from the pentabarf are displayed for download
 			:schedule => 'http://www.fossgis.de/konferenz/2011/programm/schedule.de.xml',
@@ -29,52 +30,56 @@ class Schedule
 			:filename_regex => 'FOSSGIS2011-([0-9]{3}).*'
 		},
 
-		'FOSSGIS 2012' => {
+		{
 			:schedule => 'http://www.fossgis.de/konferenz/2012/programm/schedule.de.xml',
 			:media_listing => 'http://ftp5.gwdg.de/pub/misc/openstreetmap/FOSSGIS2012/',
 			:filename_regex => 'FOSSGIS2012-([0-9]{3}).*'
 		},
 
-		'FOSSGIS 2013' => {
+		{
 			:schedule => 'http://www.fossgis.de/konferenz/2013/programm/schedule.de.xml',
 			:media_listing => 'http://ftp5.gwdg.de/pub/misc/openstreetmap/FOSSGIS2013/',
 			:filename_regex => 'FOSSGIS(?20)?12-([0-9]{3}).*'
 		},
 
-		'FOSSGIS 2014' => {
+		{
 			:schedule => 'http://www.fossgis.de/konferenz/2014/programm/schedule.de.xml'
 			#:media_listing => 'http://ftp5.gwdg.de/pub/misc/openstreetmap/FOSSGIS2014/'
 			#:filename_regex => 'FOSSGIS(?20)?12-([0-9]{3}).*'
 		}
-	}
+	]
 
 	def self.events
+		self.ensure_talks_loaded
 		return @@events
 	end
 
 	def self.talks
 		self.ensure_talks_loaded
-		return @@events.map do |eventname, eventinfo|
-			eventinfo[:talks].map do |talk| [talk[:id], talk] end
+		return @@events.map do |eventinfo|
+			eventinfo[:talks]
 		end.flatten(1)
-	end
-
-	def self.talks_for_event(eventname)
-		self.ensure_talks_loaded
-		return @@events[eventname][:talks].map do |talk| [talk[:id], talk] end
 	end
 
 	def self.ensure_talks_loaded
 		puts ""
-		@@events.keys().each do |eventname|
-			if ! @@events[eventname][:talks]
-				puts "\tfetching schedule\t".green+" for #{eventname}"
+		@@events.each do |event|
+			if ! event[:talks]
+				puts "\tfetching schedule\t".green+" #{event[:schedule]}"
 
-				xml = Nokogiri::XML(open(@@events[eventname][:schedule]))
+				xml = Nokogiri::XML(open(event[:schedule]))
 
 				# todo capture eventinfo
+				xml.xpath('/schedule/conference').tap do |conference|
+					event.merge!({
+						:title => conference.xpath('title').text,
+						:subtitle => conference.xpath('subtitle').text,
+						:venue => conference.xpath('venue').text,
+						:city => conference.xpath('city').text
+					})
+				end
 
-				@@events[eventname][:talks] = xml.xpath('//event').map do |talk|
+				event[:talks] = xml.xpath('//event').map do |talk|
 					{
 						:id => talk['id'],
 						:title => talk.xpath('title').text,
