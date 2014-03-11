@@ -1,1 +1,7 @@
-%h2= "Event "+item[:event]
+/ instead of the schedule-url we will be able to access the info from of the export-xml here
+%h2= "Event "+item[:eventname]+" fetched from "+item[:event][:schedule]
+
+%ul
+	- Schedule.talks_for_event(item[:eventname]).each do |talkid, talk|
+		%li
+			%a{ href: "/talk/#{talkid}/"}= talk[:title]

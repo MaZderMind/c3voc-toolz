@@ -31,15 +31,28 @@ compile '/js/*/' do
 end
 
 preprocess do
-  Events.names().each do |event|
+  Schedule.events().each do |eventname, event|
     items << Nanoc::Item.new(
       "=render '_event'",
-      { :event => event },
-      "/event/#{event.slugify}/")
+      { :eventname => eventname, :event => event },
+      "/event/#{eventname.slugify}/")
+  end
+
+  Schedule.talks().each do |talkid, talk|
+    items << Nanoc::Item.new(
+      "=render '_talk'",
+      { :talkid => talkid, :talk => talk },
+      "/talk/#{talkid}/")
   end
 end
 
 compile '/event/*/' do
+  filter :haml, { :ugly => true, autoclose: ['<source>'], format: :xhtml }
+  layout 'default'
+  filter :relativize_paths, :type => :html
+end
+
+compile '/talk/*/' do
   filter :haml, { :ugly => true, autoclose: ['<source>'], format: :xhtml }
   layout 'default'
   filter :relativize_paths, :type => :html
