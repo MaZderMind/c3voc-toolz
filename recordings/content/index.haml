@@ -1,7 +1,7 @@
 %h2
 	Test
 
-- read_schedule().each do |year|
+- Events.names().each do |event|
 	%h3
-		%a{ href: "/year/#{year}/"}
-			Year #{year}
+		%a{ href: "/event/#{event.slugify}/"}
+			Event #{event}

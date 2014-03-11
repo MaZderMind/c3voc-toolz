@@ -31,15 +31,15 @@ compile '/js/*/' do
 end
 
 preprocess do
-  read_schedule().each do |year|
+  Events.names().each do |event|
     items << Nanoc::Item.new(
-      "=render '_year'",
-      { :year => year },
-      "/year/#{year}/")
+      "=render '_event'",
+      { :event => event },
+      "/event/#{event.slugify}/")
   end
 end
 
-compile '/year/*/' do
+compile '/event/*/' do
   filter :haml, { :ugly => true, autoclose: ['<source>'], format: :xhtml }
   layout 'default'
   filter :relativize_paths, :type => :html

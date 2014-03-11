@@ -1,3 +1,9 @@
+class String
+	def slugify()
+		return self.downcase.gsub(/[\s\.\/_]/, ' ').squeeze(' ').strip.tr(' ', '-')
+	end
+end
+
 class Events
 	@@events = {
 		'FOSSGIS2010' => {
