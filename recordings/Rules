@@ -30,26 +30,14 @@ compile '/js/*/' do
   nil
 end
 
-preprocess do
-  Schedule.events().each do |event|
-    items << Nanoc::Item.new(
-      "=render '_event'",
-      event,
-      "/event/#{event[:title].slugify}/")
-  end
-
-  Schedule.talks().each do |talk|
-    items << Nanoc::Item.new(
-      "=render '_talk'",
-      talk,
-      "/talk/#{talk[:id]}/")
-  end
-end
-
 compile '/event/*/' do
   filter :haml, { :ugly => true, autoclose: ['<source>'], format: :xhtml }
   layout 'default'
   filter :relativize_paths, :type => :html
+end
+
+compile '/talk/*/thumb.png/' do
+  nil
 end
 
 compile '/talk/*/' do
@@ -94,6 +82,10 @@ end
 
 route '/js/*/' do
   item.identifier.chop + '.' + item[:extension]
+end
+
+route '/talk/*/thumb.png/' do
+  item.identifier.chop
 end
 
 route '*' do

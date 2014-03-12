@@ -2,12 +2,6 @@ require 'open-uri'
 require 'nokogiri'
 require 'colored'
 
-class String
-	def slugify()
-		return self.downcase.gsub(/[\s\.\/_]/, ' ').squeeze(' ').strip.tr(' ', '-')
-	end
-end
-
 class Schedule
 	@@events = [
 		{
