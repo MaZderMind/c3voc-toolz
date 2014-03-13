@@ -5,7 +5,6 @@ import os
 import argparse
 from time import time, sleep
 import re
-import json
 import urllib2
 import requests
 import xml.etree.ElementTree as ET
@@ -87,59 +86,29 @@ def fetch_events():
 def upload_file(filepath, event):
 	print "creating Auphonic-Production for Talk-ID {0} '{1}'".format(event['id'], event['title'])
 
-# curl -X POST -H "Content-Type: application/json" \
-# 	https://auphonic.com/api/productions.json \
-# 	-u `cat ~/.auphonic-login` \
-# 	-d '{
-# 		"preset": "DUgenUZvVDaHxP9qHgSHv8",
-# 		"metadata": {
-# 			"title": "Production Title",
-# 			"artist": "The Artist",
-# 			"subtitle": "Our subtitle",
-# 			"summary": "Our very long summary."
-# 		}
-# 	}'
-# 
-# curl -X POST https://auphonic.com/api/production/KKw7AxpLrDBQKLVnQCBtCh/upload.json \
-# 	-u username:password \
-# 	-F "input_file=@minute.mp4"
-
 	params = {
-		"metadata": {
-			"title": event['title'],
-			"subtitle": event['subtitle'],
-			"artist": event['personnames'],
-			"summary": event['abstract']
-		}
+		"title": event['title'],
+		"subtitle": event['subtitle'],
+		"artist": event['personnames'],
+		"summary": event['abstract'],
+		"action": "start"
 	}
 	if args.preset:
 		params['preset'] = args.preset
 
 	r = requests.post(
-		'https://auphonic.com/api/productions.json',
+		'https://auphonic.com/api/simple/productions.json',
 		auth=(auphonic_login[0], auphonic_login[1]),
-		data=json.dumps(params),
-		headers={'Content-Type': 'application/json'}
-	)
-
-	if r.status_code != 200:
-		print "production creation failed with response: ", r, r.text
-		return False
-
-	production = r.json()['data']
-	print "uploading {0} for Auphonic-Production {1}".format(filepath, production['uuid'])
-
-	r = requests.post(
-		'https://auphonic.com/api/production/{0}/upload.json'.format(production['uuid']),
-		auth=(auphonic_login[0], auphonic_login[1]),
+		data=params,
 		files={'input_file': open(filepath, 'rb')}
 	)
 
-	if r.status_code != 200:
-		print "upload failed with response: ", r, r.text
-		return False
+	if r.status_code == 200:
+		return True
 
-	return True
+	else:
+		print "auphonic-upload failed with response: ", r, r.text
+		return False
 
 
 # initial download of the event-schedule
