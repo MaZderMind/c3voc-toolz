@@ -90,7 +90,7 @@ def upload_file(filepath, event):
 		"title": event['title'],
 		"subtitle": event['subtitle'],
 		"artist": event['personnames'],
-		"summary": event['abstract'],
+		"summary": event['description'] if event['description'] else event['abstract'],
 		"action": "start"
 	}
 	if args.preset:
