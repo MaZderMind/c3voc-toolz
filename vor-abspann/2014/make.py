@@ -65,7 +65,7 @@ def vorspannFilename(id, title):
 # svg does not have a method for automatic line breaking, that rsvg is capable of
 # so we do it in python as good as we can
 def vorspannTitle(title):
-	return '</tspan><tspan x="150" dy="45">'.join(textwrap.wrap(title, 28))
+	return '</tspan><tspan x="150.58771" dy="43">'.join(textwrap.wrap(title, 35))
 
 
 
@@ -287,24 +287,24 @@ def events():
 # debug-mode selected by --debug switch
 if debug:
 	print "!!! DEBUG MODE !!!"
-	title = 'OpenJUMP - Überblick, Neuigkeiten, Zusammenarbeit/Schnittstellen mit proprietärer Software'
 
-	render(
-		'vorspann.svg',
-		os.path.join('..', vorspannFilename(667, title)),
-		vorspannFrames,
-		{'%id': 664, '%title': vorspannTitle(title), '%personnames': 'Matthias Scholz' }
-	)
+	for title in ['OpenJUMP - Überblick, Neuigkeiten, Zusammenarbeit/Schnittstellen mit proprietärer Software', 'MapServer II']:
+		render(
+			'vorspann.svg',
+			os.path.join('..', vorspannFilename(667, title)),
+			vorspannFrames,
+			{'%id': 664, '%title': vorspannTitle(title), '%personnames': 'Matthias Scholz' }
+		)
 
 	render(
 		'abspann.svg',
-		'../abspann-by-sa.mp4',
+		'../abspann-by-sa.dv',
 		abspannFrames,
 		{'%lizenz': 'by-sa'}
 	)
 
 	render('pause.svg',
-		'../pause.mp4',
+		'../pause.dv',
 		pauseFrames
 	)
 
