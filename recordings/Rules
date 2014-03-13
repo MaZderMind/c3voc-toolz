@@ -16,8 +16,24 @@
 require 'compass'
 Compass.add_project_configuration 'lib/compass.rb'
 
+
+
+route '/css/*/' do
+  if item.identifier.start_with?('/css/_')
+    item.identifier.chop + '.' + item[:extension]
+  else
+    item.identifier.gsub(/\/$/, '') + '.css'
+  end
+end
+
 compile '/css/' do
   # don’t filter or layout
+end
+
+
+
+route '/img/*/' do
+  item.identifier.chop + '.' + item[:extension]
 end
 
 compile '/img/*/' do
@@ -25,10 +41,18 @@ compile '/img/*/' do
   nil
 end
 
+
+
+route '/js/*/' do
+  item.identifier.chop + '.' + item[:extension]
+end
+
 compile '/js/*/' do
   # Don't waste time compiling partials that will never be output
   nil
 end
+
+
 
 compile '/event/*/' do
   filter :haml, { :ugly => true, autoclose: ['<source>'], format: :xhtml }
@@ -36,14 +60,32 @@ compile '/event/*/' do
   filter :relativize_paths, :type => :html
 end
 
-compile '/talk/*/thumb.png/' do
-  nil
-end
-
 compile '/talk/*/' do
   filter :haml, { :ugly => true, autoclose: ['<source>'], format: :xhtml }
   layout 'default'
   filter :relativize_paths, :type => :html
+end
+
+
+
+route '/talk/*/thumb.png/' do
+  item.identifier.chop
+end
+
+compile '/talk/*/thumb.png/' do
+  filter :generate_thumb
+end
+
+
+
+route '*' do
+  if item.binary?
+    # Write item with identifier /foo/ to /foo.ext
+    item.identifier.chop + '.' + item[:extension]
+  else
+    # Write item with identifier /foo/ to /foo/index.html
+    item.identifier + 'index.html'
+  end
 end
 
 compile '*' do
@@ -63,38 +105,6 @@ compile '*' do
       else
         nil
     end
-  end
-end
-
-
-route '/css/*/' do
-  if item.identifier.start_with?('/css/_')
-    item.identifier.chop + '.' + item[:extension]
-  else
-    item.identifier.gsub(/\/$/, '') + '.css'
-  end
-end
-
-
-route '/img/*/' do
-  item.identifier.chop + '.' + item[:extension]
-end
-
-route '/js/*/' do
-  item.identifier.chop + '.' + item[:extension]
-end
-
-route '/talk/*/thumb.png/' do
-  item.identifier.chop
-end
-
-route '*' do
-  if item.binary?
-    # Write item with identifier /foo/ to /foo.ext
-    item.identifier.chop + '.' + item[:extension]
-  else
-    # Write item with identifier /foo/ to /foo/index.html
-    item.identifier + 'index.html'
   end
 end
 

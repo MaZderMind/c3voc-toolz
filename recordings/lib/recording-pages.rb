@@ -19,6 +19,7 @@ class RecordingPages < Nanoc::DataSource
 				talk,
 				"/talk/#{talk[:id]}/")
 
+			puts "datasource adding item for thumb"
 			items << Nanoc::Item.new(
 				"=render '_talk'",
 				talk,
