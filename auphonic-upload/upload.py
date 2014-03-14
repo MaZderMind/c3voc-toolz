@@ -2,10 +2,12 @@
 # -*- coding: UTF-8 -*-
 
 import os
+import sys
 import argparse
 from time import time, sleep
 import re
 import requests
+from poster.encode import multipart_encode
 import xml.etree.ElementTree as ET
 
 parser = argparse.ArgumentParser(description='Watch a Folder for Video-Recordings, associate them with Talks from a Pentabarf-XML and upload the videos with metadata from the xml to Auphonic for further processing')
@@ -84,6 +86,32 @@ def fetch_events():
 
 
 
+# an adapter which makes the multipart-generator issued by poster accessable to requests
+# based upon code from http://stackoverflow.com/a/13911048/1659732
+class IterableToFileAdapter(object):
+	def __init__(self, iterable):
+		self.iterator = iter(iterable)
+		self.length = iterable.total
+
+	def read(self, size=-1):
+		return next(self.iterator, b'')
+
+	def __len__(self):
+		return self.length
+
+# define a helper function simulating the interface of posters multipart_encode()-function
+# but wrapping its generator with the file-like adapter
+def multipart_encode_for_requests(params, boundary=None, cb=None):
+	datagen, headers = multipart_encode(params, boundary, cb)
+	return IterableToFileAdapter(datagen), headers
+
+# this is your progress callback
+def progress(param, current, total):
+	sys.stderr.write("\ruploading {0}: {1:.2f}% ({2:d} MB of {3:d} MB)".format(param.filename if param else "", float(current)/float(total)*100, current/1024/1024, total/1024/1024))
+	sys.stderr.flush()
+
+
+
 def upload_file(filepath, event):
 	print "creating Auphonic-Production for Talk-ID {0} '{1}'".format(event['id'], event['title'])
 
@@ -92,17 +120,23 @@ def upload_file(filepath, event):
 		"subtitle": event['subtitle'],
 		"artist": event['personnames'],
 		"summary": event['description'] if event['description'] else event['abstract'],
-		"action": "start"
+		"action": "start",
+
+		"input_file": open(filepath, 'rb')
 	}
 	if args.preset:
 		params['preset'] = args.preset
 
+	datagen, headers = multipart_encode_for_requests(params, cb=progress)
+
 	r = requests.post(
 		'https://auphonic.com/api/simple/productions.json',
 		auth=(auphonic_login[0], auphonic_login[1]),
-		data=params,
-		files={'input_file': open(filepath, 'rb')}
+		data=datagen,
+		headers=headers
 	)
+
+	print ""
 
 	if r.status_code == 200:
 		return True
