@@ -5,7 +5,6 @@ import os
 import argparse
 from time import time, sleep
 import re
-import urllib2
 import requests
 import xml.etree.ElementTree as ET
 
@@ -45,17 +44,19 @@ with open(args.auphonic) as fp:
 def fetch_events():
 	print('downloading pentabarf schedule')
 
-	# download the schedule
-	response = urllib2.urlopen(args.schedule)
-
-	# read xml-source
-	xml = response.read()
-
-	# parse into ElementTree
-	schedule = ET.fromstring(xml)
-
 	# destination list of events
 	events = {}
+
+	# download the schedule
+	r = requests.get(args.schedule)
+
+	# check HTTP-Response-Code
+	if r.status_code != 200:
+		print('download failed')
+		return events
+
+	# parse into ElementTree
+	schedule = ET.fromstring(r.text)
 
 	# iterate all days
 	for day in schedule.iter('day'):
