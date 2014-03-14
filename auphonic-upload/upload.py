@@ -173,7 +173,9 @@ while True:
 		# test if the filepath starts with a number and retrieve it
 		match = pattern.match(filename)
 		print('found file {0} in recordings-folder'.format(filename))
-		if match:
+		if not match:
+			print('"{0}" does not match any event in the schedule, skipping'.format(filename))
+		else:
 			talkid = int(match.group(0))
 			if talkid in events:
 				event = events[talkid]
