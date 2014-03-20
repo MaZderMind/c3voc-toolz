@@ -116,13 +116,13 @@ def progress(param, current, total):
 
 
 def upload_file(filepath, event):
-	print "creating Auphonic-Production for Talk-ID {0} '{1}'".format(event['id'], event['title'])
+	print u"creating Auphonic-Production for Talk-ID {0} '{1}'".format(event['id'], event['title'])
 
 	params = {
-		"title": event['title'],
-		"subtitle": event['subtitle'],
-		"artist": event['personnames'],
-		"summary": event['description'] if event['description'] else event['abstract'],
+		"title": unicode(event['title']),
+		"subtitle": unicode(event['subtitle']),
+		"artist": unicode(event['personnames']),
+		"summary": unicode(event['description']) if event['description'] else unicode(event['abstract']),
 		"action": "start",
 
 		"input_file": open(filepath, 'rb')
@@ -174,14 +174,14 @@ while True:
 			continue
 
 		if args.extension and os.path.splitext(filename)[1] != args.extension:
-			print('does not match extension {0}, skipping'.format(args.extension))
+			print(u'does not match extension {0}, skipping'.format(args.extension))
 			continue
 
 		# test if the filepath starts with a number and retrieve it
 		match = pattern.match(filename)
-		print('found file {0} in recordings-folder'.format(filename))
+		print(u'found file {0} in recordings-folder'.format(filename))
 		if not match:
-			print('"{0}" does not match any event in the schedule, skipping'.format(filename))
+			print(u'"{0}" does not match any event in the schedule, skipping'.format(filename))
 		else:
 			talkid = int(match.group(0))
 			if talkid in events:
