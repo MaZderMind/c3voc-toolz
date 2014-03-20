@@ -155,47 +155,41 @@ eventsage = time()
 
 pattern = re.compile("[0-9]+")
 
-while True:
-	# check age of event-schedule
-	if time() - eventsage > 60*10:
-		# re-download schedule when it's older then 10 minutes
-		print('pentabarf schedule is >10 minutes old, re-downloading')
+# check age of event-schedule
+if time() - eventsage > 60*10:
+	# re-download schedule when it's older then 10 minutes
+	print('pentabarf schedule is >10 minutes old, re-downloading')
 
-		# redownload
-		events = fetch_events()
-		eventsage = time()
+	# redownload
+	events = fetch_events()
+	eventsage = time()
 
-	# iterate all files in the recordings-folder
-	for filename in os.listdir(args.recordings):
-		filepath = os.path.join(args.recordings, filename)
+# iterate all files in the recordings-folder
+for filename in os.listdir(args.recordings):
+	filepath = os.path.join(args.recordings, filename)
 
-		# files, i said!
-		if not os.path.isfile(filepath):
-			continue
+	# files, i said!
+	if not os.path.isfile(filepath):
+		continue
 
-		if args.extension and os.path.splitext(filename)[1] != args.extension:
-			print(u'does not match extension {0}, skipping'.format(args.extension))
-			continue
+	if args.extension and os.path.splitext(filename)[1] != args.extension:
+		continue
 
-		# test if the filepath starts with a number and retrieve it
-		match = pattern.match(filename)
-		print(u'found file {0} in recordings-folder'.format(filename))
-		if not match:
-			print(u'"{0}" does not match any event in the schedule, skipping'.format(filename))
-		else:
-			talkid = int(match.group(0))
-			if talkid in events:
-				event = events[talkid]
-				if upload_file(filepath, event):
-					print('done, moving to finished-folder')
-					os.rename(filepath, os.path.join(args.finished, filename))
-				else:
-					print('upload FAILED! trying again, after the next Maus')
+	# test if the filepath starts with a number and retrieve it
+	match = pattern.match(filename)
+	print(u'found file {0} in recordings-folder'.format(filename))
+	if not match:
+		print(u'"{0}" does not match any event in the schedule, skipping'.format(filename))
+	else:
+		talkid = int(match.group(0))
+		if talkid in events:
+			event = events[talkid]
+			if upload_file(filepath, event):
+				print('done, moving to finished-folder')
+				os.rename(filepath, os.path.join(args.finished, filename))
+			else:
+				print('upload FAILED! trying again, after the next Maus')
 
-
-	# sleep half a minute
-	print('nothing to do, sleeping half a minute')
-	sleep(30)
 
 print('all done, good night.')
 
