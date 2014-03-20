@@ -22,6 +22,9 @@ parser.add_argument('--recordings',
 parser.add_argument('--finished',
 	help='path of a folder where uploaded files are moved to (defaults to a subfolder "finished" inside the recordings-folder)')
 
+parser.add_argument('--extension',
+	help='only work on files with the given extension')
+
 parser.add_argument('--auphonic-login',
 	dest='auphonic',
 	default=os.path.expandvars('$HOME/.auphonic-login'),
@@ -168,6 +171,10 @@ while True:
 
 		# files, i said!
 		if not os.path.isfile(filepath):
+			continue
+
+		if args.extension and os.path.splitext(filename)[1] != args.extension:
+			print('does not match extension {0}, skipping'.format(args.extension))
 			continue
 
 		# test if the filepath starts with a number and retrieve it
