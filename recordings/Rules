@@ -54,6 +54,16 @@ end
 
 
 
+route '/talk/*/thumb.png/' do
+  item.identifier.chop
+end
+
+compile '/talk/*/thumb.png/' do
+  filter :generate_thumb
+end
+
+
+
 compile '/event/*/' do
   filter :haml, { :ugly => true, autoclose: ['<source>'], format: :xhtml }
   layout 'default'
@@ -64,16 +74,6 @@ compile '/talk/*/' do
   filter :haml, { :ugly => true, autoclose: ['<source>'], format: :xhtml }
   layout 'default'
   filter :relativize_paths, :type => :html
-end
-
-
-
-route '/talk/*/thumb.png/' do
-  item.identifier.chop
-end
-
-compile '/talk/*/thumb.png/' do
-  filter :generate_thumb
 end
 
 
