@@ -12,16 +12,14 @@ class RecordingPages < Nanoc::DataSource
 				"/event/#{event[:title].slugify}/")
 		end
 
-
 		Schedule.talks().each do |talk|
 			items << Nanoc::Item.new(
 				"=render '_talk'",
 				talk,
 				"/talk/#{talk[:id]}/")
 
-			puts "datasource adding item for thumb"
 			items << Nanoc::Item.new(
-				"=render '_talk'",
+				"url-to-the-video",
 				talk,
 				"/talk/#{talk[:id]}/thumb.png/")
 		end
