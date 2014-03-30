@@ -41,6 +41,6 @@ class Configuration
 
 
 	def self.events
-	@@events
+		@@events
 	end
 end
