@@ -1,4 +1,4 @@
-class RecordingPages < Nanoc::DataSource
+class PageGenerator < Nanoc::DataSource
 	identifier :schedule
 
 	def items
