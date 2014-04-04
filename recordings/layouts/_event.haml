@@ -4,4 +4,5 @@
 %ul
 	- item[:talks].each do |talk|
 		%li
+			=talk[:track]+": "
 			%a{ href: "/talk/#{talk[:id]}/"}= talk[:title]

@@ -1,3 +1,6 @@
-%h2= "Talk ID "+item[:id]+" aka "+item[:title]
+%h2= "Talk ID "+item[:id]+" aka "+item[:title]+"("+item[:track]+", "+item[:room]+") at "+item[:event][:title]+" in "+item[:event][:venue]
 %p= item[:description]
 %code= item[:files]
+
+-if item[:has_media]
+	%img.thumb{ src: 'thumb.png' }
