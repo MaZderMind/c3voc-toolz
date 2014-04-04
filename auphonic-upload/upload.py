@@ -61,7 +61,7 @@ def fetch_events():
 		return events
 
 	# parse into ElementTree
-	schedule = ET.fromstring(r.text)
+	schedule = ET.fromstring(r.text.encode('utf-8'))
 
 	# iterate all days
 	for day in schedule.iter('day'):
