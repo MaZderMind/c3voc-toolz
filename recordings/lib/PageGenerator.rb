@@ -18,10 +18,20 @@ class PageGenerator < Nanoc::DataSource
 				talk,
 				"/talk/#{talk[:id]}/")
 
-			items << Nanoc::Item.new(
-				"url-to-the-video",
-				talk,
-				"/talk/#{talk[:id]}/thumb.png/")
+			if talk[:files]
+				talk[:files].each do |url|
+					if ['.mp4', '.webm', '.mov'].include?(File.extname(url))
+						items << Nanoc::Item.new(
+							url,
+							talk,
+							"/talk/#{talk[:id]}/thumb.png/",
+							{:mtime => DateTime.new(2000, 1, 1), :checksum => url.checksum })
+
+						break
+
+					end
+				end
+			end
 		end
 
 

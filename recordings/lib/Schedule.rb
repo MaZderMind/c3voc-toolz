@@ -23,30 +23,37 @@ class Schedule
 
 				open(event[:schedule]) do |f|
 					xml = Nokogiri::XML(f)
+					eventinfo = {}
 
 					# todo capture eventinfo
 					xml.xpath('/schedule/conference').tap do |conference|
-						event.merge!({
+						eventinfo = {
 							:title => conference.xpath('title').text,
 							:subtitle => conference.xpath('subtitle').text,
 							:venue => conference.xpath('venue').text,
 							:city => conference.xpath('city').text
-						})
+						}
+						event.merge!(eventinfo)
 					end
 
 					event[:talks] = Hash[xml.xpath('//event').map do |talk|
 						[talk['id'].to_i, {
+							:event => eventinfo,
 							:id => talk['id'],
 							:title => talk.xpath('title').text,
 							:subtitle => talk.xpath('subtitle').text,
 							:abstract => talk.xpath('abstract').text,
 							:description => talk.xpath('description').text,
+							:track => talk.xpath('track').text,
+							:room => talk.xpath('room').text,
 							:persons => talk.xpath('persons/person').map do |person|
 								{
 									:id => person['id'],
 									:name => person.text
 								}
 							end
+
+							# TODO: load pentabarf attachments
 						}]
 					end]
 				end
@@ -60,16 +67,16 @@ class Schedule
 							if event[:talks][talkid.to_i]
 								if ! event[:talks][talkid.to_i][:files]
 									event[:talks][talkid.to_i][:files] = []
+									event[:talks][talkid.to_i][:has_media] = true
 								end
 
 								event[:talks][talkid.to_i][:files] << File.join(event[:media_listing], fname)
-							else
-								puts talkid
 							end
 
 						end
 					end
 				end
+
 
 				event[:talks] = event[:talks].values
 
