@@ -122,7 +122,7 @@ def upload_file(filepath, event):
 		"title": unicode(event['title']),
 		"subtitle": unicode(event['subtitle']),
 		"artist": unicode(event['personnames']),
-		"summary": unicode(event['description']) if event['description'] else unicode(event['abstract']),
+		"summary": unicode(event['personnames']) + "\n\n" + (unicode(event['description']) if event['description'] else unicode(event['abstract'])),
 		"action": "start",
 
 		"input_file": open(filepath, 'rb')
