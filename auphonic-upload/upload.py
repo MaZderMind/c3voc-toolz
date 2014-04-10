@@ -11,7 +11,7 @@ import requests
 from poster.encode import multipart_encode
 import xml.etree.ElementTree as ET
 
-parser = argparse.ArgumentParser(description='Watch a Folder for Video-Recordings, associate them with Talks from a Pentabarf-XML and upload the videos with metadata from the xml to Auphonic for further processing')
+parser = argparse.ArgumentParser(description='Scan a Folder for Video-Recordings, associate them with Talks from a Pentabarf-XML and upload the videos with metadata from the xml to Auphonic for further processing')
 parser.add_argument('--schedule',
 	required=True,
 	help='url to a pentabarf schedule.xml')
@@ -174,19 +174,9 @@ def upload_file(filepath, event):
 
 # initial download of the event-schedule
 events = fetch_events()
-eventsage = time()
 
 # pattern to extract talk-.ids form filenames
 pattern = re.compile("[0-9]+")
-
-# check age of event-schedule
-if time() - eventsage > 60*10:
-	# re-download schedule when it's older then 10 minutes
-	print('pentabarf schedule is >10 minutes old, re-downloading')
-
-	# redownload
-	events = fetch_events()
-	eventsage = time()
 
 # iterate all files in the recordings-folder
 for filename in os.listdir(args.recordings):
