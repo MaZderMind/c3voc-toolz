@@ -32,6 +32,7 @@ parser.add_argument('--auphonic-login',
 	help='path of a file containing "username:password" of your auphonic account')
 
 parser.add_argument('--auphonic-preset',
+	required=True,
 	dest='preset',
 	help='UUID of auphonic preset which should be used after uploading')
 
@@ -138,16 +139,15 @@ def upload_file(filepath, event):
 		# whatever filename the input has, always name the outout as talkid.format
 		"output_basename": unicode(event['id']),
 
+		# auphonic preset identifier
+		'preset': unicode(args.preset),
+
 		# tell auphonic to start the production as soon as possible
 		"action": "start",
 
 		# file pointer to the input-file
 		"input_file": open(filepath, 'rb')
 	}
-
-	# if a preset was specified on the command-line, apply it
-	if args.preset:
-		params['preset'] = args.preset
 
 	# generate multipoart-encoder with progress display
 	datagen, headers = multipart_encode_for_requests(params, cb=progress)
