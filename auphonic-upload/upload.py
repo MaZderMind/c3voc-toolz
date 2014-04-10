@@ -135,6 +135,9 @@ def upload_file(filepath, event):
 		# prepend personnames to description (makes them searchable in youtube)
 		"summary": unicode(event['personnames']) + "\n\n" + (unicode(event['description']) if event['description'] else unicode(event['abstract'])),
 
+		# whatever filename the input has, always name the outout as talkid.format
+		"output_basename": unicode(event['id']),
+
 		# tell auphonic to start the production as soon as possible
 		"action": "start",
 
