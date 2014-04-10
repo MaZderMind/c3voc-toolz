@@ -3,6 +3,7 @@
 
 import os
 import sys
+import errno
 import argparse
 from time import time, sleep
 import re
@@ -20,7 +21,7 @@ parser.add_argument('--recordings',
 	help='path of a folder with recording-files (mostly videos)')
 
 parser.add_argument('--finished',
-	help='path of a folder where uploaded files are moved to (defaults to a subfolder "finished" inside the recordings-folder)')
+	help='path of a folder where uploaded files are moved to (defaults to a subfolder "finished-upload" inside the recordings-folder)')
 
 parser.add_argument('--extension',
 	help='only work on files with the given extension')
@@ -35,14 +36,21 @@ parser.add_argument('--auphonic-preset',
 	help='UUID of auphonic preset which should be used after uploading')
 
 args = parser.parse_args()
+
+# if no finished-folder was specified, construct one
 if args.finished == None:
-	args.finished = os.path.join(args.recordings, 'finished')
+	args.finished = os.path.join(args.recordings, 'finished-upload')
 
+# ensure it exists
+try:
+	os.makedirs(args.finished)
+except OSError as exception:
+	if exception.errno != errno.EEXIST:
+		raise
 
-# try to read the auphonic login-data file
+# read the auphonic login-data file
 with open(args.auphonic) as fp:
 	auphonic_login = fp.read().strip().split(':', 1)
-
 
 
 # Download the Events-Schedule and parse all Events out of it. Yield a tupel for each Event
@@ -108,30 +116,40 @@ def multipart_encode_for_requests(params, boundary=None, cb=None):
 	datagen, headers = multipart_encode(params, boundary, cb)
 	return IterableToFileAdapter(datagen), headers
 
-# this is your progress callback
+# tupload progress callback
 def progress(param, current, total):
 	sys.stderr.write("\ruploading {0}: {1:.2f}% ({2:d} MB of {3:d} MB)".format(param.filename if param else "", float(current)/float(total)*100, current/1024/1024, total/1024/1024))
 	sys.stderr.flush()
 
-
-
+# upload a single file to auphonic
 def upload_file(filepath, event):
 	print u"creating Auphonic-Production for Talk-ID {0} '{1}'".format(event['id'], event['title'])
 
+
 	params = {
+		# talk metadata
 		"title": unicode(event['title']),
 		"subtitle": unicode(event['subtitle']),
 		"artist": unicode(event['personnames']),
+
+		# prepend personnames to description (makes them searchable in youtube)
 		"summary": unicode(event['personnames']) + "\n\n" + (unicode(event['description']) if event['description'] else unicode(event['abstract'])),
+
+		# tell auphonic to start the production as soon as possible
 		"action": "start",
 
+		# file pointer to the input-file
 		"input_file": open(filepath, 'rb')
 	}
+
+	# if a preset was specified on the command-line, apply it
 	if args.preset:
 		params['preset'] = args.preset
 
+	# generate multipoart-encoder with progress display
 	datagen, headers = multipart_encode_for_requests(params, cb=progress)
 
+	# pass the generated encoder to requests which handles the http
 	r = requests.post(
 		'https://auphonic.com/api/simple/productions.json',
 		auth=(auphonic_login[0], auphonic_login[1]),
@@ -139,8 +157,10 @@ def upload_file(filepath, event):
 		headers=headers
 	)
 
+	# linebreak
 	print ""
 
+	# check for success
 	if r.status_code == 200:
 		return True
 
@@ -153,6 +173,7 @@ def upload_file(filepath, event):
 events = fetch_events()
 eventsage = time()
 
+# pattern to extract talk-.ids form filenames
 pattern = re.compile("[0-9]+")
 
 # check age of event-schedule
@@ -176,20 +197,31 @@ for filename in os.listdir(args.recordings):
 		continue
 
 	# test if the filepath starts with a number and retrieve it
-	match = pattern.match(filename)
 	print(u'found file {0} in recordings-folder'.format(filename))
+	match = pattern.match(filename)
+
+	# the filename does not start with a number
 	if not match:
-		print(u'"{0}" does not match any event in the schedule, skipping'.format(filename))
+		print(u'"{0}" does not start with a number, skipping'.format(filename))
+
 	else:
+		# extract the number
 		talkid = int(match.group(0))
+
+		# test if the number is a valid talk-id
 		if talkid in events:
+			# extract the corresponding event from the shedule
 			event = events[talkid]
+
+			# upload that the file with the metadata found in the shedule
 			if upload_file(filepath, event):
 				print('done, moving to finished-folder')
 				os.rename(filepath, os.path.join(args.finished, filename))
+
 			else:
 				print('upload FAILED! trying again, after the next Maus')
 
 
+# wink bye-bye
 print('all done, good night.')
 
